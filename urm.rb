@@ -114,16 +114,7 @@ class InstructionPointer
   attr_reader :instruction
 end
 
-class Environment
-
-  def initialize(instruction_pointer=0, registers=nil)
-    registers ||= Hamster.vector(*([0] * REGISTERS))
-    @instruction_pointer = instruction_pointer
-    @registers = registers
-    @registers.freeze
-    freeze
-  end
-
+class Environment < Value.new(:instruction_pointer, :registers)
   def result
     registers.get(0)
   end
@@ -131,8 +122,6 @@ class Environment
   def inspect
     "#{instruction_pointer+1}: #{registers.to_a.join(",")}"
   end
-
-  attr_reader :instruction_pointer, :registers
 end
 
 class Evaluator
