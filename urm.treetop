@@ -1,0 +1,76 @@
+require 'urm'
+
+grammar URM
+
+  rule concatenate_or_empty
+    concatenate / empty
+  end
+
+  rule concatenate
+    first:term [\s]+ rest:concatenate_or_empty {
+      def to_ast
+        Concatenate.new(first.to_ast, rest.to_ast)
+      end
+    }
+  end
+
+  rule empty
+    '' {
+      def to_ast
+        Empty.new
+      end
+    }
+  end
+
+  rule term
+    zero / succ / copy / jump
+  end
+
+  rule zero
+    'Z(' register:identifier ')' {
+      def to_ast
+        Zero.new(register.to_ast)
+      end
+    }
+  end
+
+  rule succ
+    'S(' register:identifier ')' {
+      def to_ast
+        Successor.new(register.to_ast)
+      end
+    }
+  end
+
+  rule copy
+    'C(' from:identifier ',' to:identifier ')' {
+      def to_ast
+        Copy.new(from.to_ast, to.to_ast)
+      end
+    }
+  end
+
+  rule jump
+    'J(' left:identifier ',' right:identifier ',' pointer:pointer ')' {
+      def to_ast
+        Jump.new(left.to_ast, right.to_ast, pointer.to_ast)
+      end
+    }
+  end
+
+  rule identifier
+    [0-9]+ {
+      def to_ast
+        Identifier.new(text_value)
+      end
+    }
+  end
+
+  rule pointer
+    [0-9]+ {
+      def to_ast
+        InstructionPointer.new(text_value)
+      end
+    }
+  end
+end
